@@ -1,0 +1,25 @@
+앞으로 자주 쓰게 될 3가지 핵심 명령도 전부 한 줄로 정리해 드리면:
+1. 현재상태확인
+2. 최신코드가져오기
+3. 작업백업 깃헙저장.
+
+
+1️⃣ 현재 상태 확인
+cd "C:\Users\slpar\OneDrive\문서\CODEX"; git status
+2️⃣ 최신 코드 가져오기
+cd "C:\Users\slpar\OneDrive\문서\CODEX"; git pull
+3️⃣작업 백업 (GitHub 저장)
+cd "C:\Users\slpar\OneDrive\문서\CODEX"; git add .; git commit -m "update"; git push
+
+
+그리고 하나 중요한 점 👇
+
+지금 GitHub 백업까지 끝났기 때문에 앞으로는
+
+PC 바뀌어도
+ChatGPT 계정 바뀌어도
+CODEX 새로 설치해도
+
+이 한 줄로 프로젝트 복구됩니다.
+
+git clone https://github.com/70BRICH/financial_pipeline.git
