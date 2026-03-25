@@ -1,0 +1,27 @@
+{
+  "project": "financial_pipeline",
+  "updated_at": "2026-03-24",
+  "current_milestone": "QDATA parser",
+  "completed_milestones": [
+    "project rules documentation",
+    "base schema draft",
+    "source-group-aware inventory",
+    "SQLite runtime",
+    "inspection helper",
+    "KDATA1 parser",
+    "KDATA2 parser"
+  ],
+  "next_actions": [
+    "inspect QDATA structure",
+    "implement QDATA parser",
+    "load into raw_observation",
+    "add inspect helper"
+  ],
+  "constraints": [
+    "do not modify KDATA1 parser",
+    "do not modify KDATA2 parser",
+    "do not implement company matching yet",
+    "do not implement metric standardization yet",
+    "do not implement integrated logic yet"
+  ]
+}

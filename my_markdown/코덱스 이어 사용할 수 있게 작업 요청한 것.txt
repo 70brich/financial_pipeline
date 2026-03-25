@@ -1,0 +1,43 @@
+이번에는, codex에서도 작업을 이어갈 수 있도록 처리를 하게 도와줘. 
+
+예를 들어 새로 시작하는 환경이 되더라도, 지금까지의 내역들을 다 가지고 있게, 파일 저장, 로드 등을 활용해도 되고, 너와의 대화를 활용해도 되고.
+
+지금은 **“새 환경에서도 Codex가 바로 이어받을 수 있는 전달 패키지”**를 만드는 게 핵심이에요.
+파일 2~3개와 시작 프롬프트 1개만 있으면, 새 창/새 세션에서도 맥락 손실을 크게 줄일 수 있습니다.
+
+Thought for 3m 2s
+
+네. Codex 연속성 패키지를 만들어뒀어요.
+
+다운로드:
+
+codex_continuation_pack.zip
+
+개별 파일:
+
+README_Codex_Continuation.md
+CODEX_SESSION_STATE.md
+CODEX_RESUME_PROMPT_QDATA.txt
+SESSION_UPDATE_TEMPLATE.md
+STATE.json
+
+가장 안전한 방법은 이 파일들을 프로젝트 폴더 안에 같이 두는 것입니다.
+초기 설계의 핵심 원칙은 raw/integrated 분리, long-format 저장, is_estimate 구분으로 이미 정리돼 있고 , 현재는 KDATA2까지 적재 검증이 끝난 상태라 다음 milestone을 QDATA로 넘기기 좋습니다.
+
+추천 배치는 이렇게 하세요.
+
+docs/CODEX_SESSION_STATE.md
+prompts/CODEX_RESUME_PROMPT_QDATA.txt
+docs/SESSION_UPDATE_TEMPLATE.md
+docs/STATE.json
+
+새 Codex 세션에서는 CODEX_RESUME_PROMPT_QDATA.txt 내용을 그대로 붙여넣고 시작하면 됩니다.
+
+핵심은 이거예요.
+
+채팅 기록에 의존하지 말고
+repo 안의 상태 파일을 단일 진실원본으로 유지
+milestone 끝날 때마다 CODEX_SESSION_STATE.md만 갱신
+
+원하시면 다음엔 QDATA용 Codex 시작 프롬프트를 더 짧고 강하게 한 버전으로도 정리해드릴게요.
+

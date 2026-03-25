@@ -1,0 +1,395 @@
+PS C:\Users\slpar\OneDrive\문서\CODEX> py -3 -m unittest tests.test_metric_mapping; py -3 -m python.etl.run_standard_metric_mapping; py -3 -m python.etl.inspect_standard_metric_mapping
+.......................
+----------------------------------------------------------------------
+Ran 23 tests in 0.009s
+
+OK
+Standard metric mapping complete. integrated_observation_enriched_rows=2432
+Standard metric mapping inspection
+Database: C:\Users\slpar\OneDrive\문서\CODEX\data\financial_pipeline.sqlite3
+
+=== Distinct coverage summary ===
+total distinct raw_metric_name: 154
+mapped distinct raw_metric_name: 103
+unmapped distinct raw_metric_name: 51
+coverage ratio: 66.88%
+
+=== Row-level coverage summary ===
+total enriched rows: 2432
+mapped enriched rows: 2077
+unmapped enriched rows: 355
+row coverage ratio: 85.40%
+
+=== Top standard_metric_name row counts ===
+OPERATING_MARGIN: 85
+OPERATING_INCOME: 73
+NET_INCOME: 72
+CONTROLLING_NET_INCOME: 70
+REVENUE: 63
+FREE_CASH_FLOW: 53
+DEBT_RATIO: 52
+GROSS_MARGIN: 52
+CURRENT_RATIO: 51
+EPS: 51
+CLOSE_PRICE: 49
+HIGH_PRICE: 49
+LOW_PRICE: 49
+OPEN_PRICE: 49
+MARKET_CAP: 46
+PRE_TAX_CONTINUING_INCOME: 46
+COST_OF_SALES: 45
+FINANCING_CASH_FLOW: 45
+GROSS_PROFIT: 45
+INVESTING_CASH_FLOW: 45
+OPERATING_CASH_FLOW: 45
+SGA_EXPENSE: 45
+REVENUE_GROWTH_RATE: 44
+PBR: 43
+BPS: 42
+PRE_TAX_CONTINUING_MARGIN: 42
+RETAINED_EARNINGS: 41
+OPERATING_INCOME_GROWTH_RATE: 40
+ROA: 38
+PER: 36
+
+=== New v1.2 standard_metric_name row counts ===
+RETAINED_EARNINGS: 41
+ACCOUNTS_PAYABLE: 10
+ACCOUNTS_RECEIVABLE: 10
+BORROWINGS: 10
+CASH_EQUIVALENTS: 10
+CONTROLLING_EQUITY: 10
+CURRENT_ASSETS: 10
+CURRENT_LIABILITIES: 10
+INTANGIBLE_ASSETS: 10
+INVENTORIES: 10
+NET_DEBT: 10
+NON_CURRENT_ASSETS: 10
+NON_CURRENT_LIABILITIES: 10
+PROPERTY_PLANT_EQUIPMENT: 10
+QUICK_RATIO: 10
+WORKING_CAPITAL: 10
+
+=== Choice 2 standard_metric_name row counts ===
+PRE_TAX_CONTINUING_INCOME: 46
+PRE_TAX_CONTINUING_MARGIN: 42
+SHAREHOLDER_ROE: 36
+NET_MARGIN: 26
+
+=== Choice 2 income-component row counts ===
+PRE_TAX_INCOME: 10
+CORPORATE_TAX: 10
+AFFILIATE_INCOME: 10
+FINANCIAL_INCOME: 10
+NON_OPERATING_INCOME: 10
+
+=== Choice 2 income-component alias map rows ===
+\uad00\uacc4\uae30\uc5c5\uc190\uc775 -> AFFILIATE_INCOME
+\ubc95\uc778\uc138 -> CORPORATE_TAX
+\uae08\uc735\uc190\uc775 -> FINANCIAL_INCOME
+\uae30\ud0c0\uc601\uc5c5\uc678\uc190\uc775 -> NON_OPERATING_INCOME
+\uc138\uc804\uc21c\uc774\uc775 -> PRE_TAX_INCOME
+\uc138\uc804\uc21c\uc775 -> PRE_TAX_INCOME
+
+=== Choice 2 accounting-investment row counts ===
+NON_CONTROLLING_PROFIT: 10
+DEPRECIATION_EXPENSE: 10
+CAPEX: 10
+INVESTMENT_ASSETS: 10
+INVESTED_CAPITAL: 10
+
+=== Choice 2 ratio row counts ===
+DEPRECIATION_RATIO: 10
+SGA_RATIO: 10
+RND_RATIO: 10
+BORROWING_RATIO: 10
+OPERATING_INCOME_TO_BORROWINGS_RATIO: 10
+
+=== Choice 2 growth-rate row counts ===
+REVENUE_GROWTH_RATE: 44
+SGA_GROWTH_RATE: 28
+OPERATING_INCOME_GROWTH_RATE: 40
+NET_INCOME_GROWTH_RATE: 0
+BPS_GROWTH_RATE: 10
+EPS_GROWTH_RATE: 10
+FCF_GROWTH_RATE: 10
+NPM_GROWTH_RATE: 10
+OPM_GROWTH_RATE: 10
+ROA_GROWTH_RATE: 10
+ROE_GROWTH_RATE: 10
+CAPEX_GROWTH_RATE: 10
+OPERATING_CASHFLOW_GROWTH_RATE: 10
+EQUITY_GROWTH_RATE: 10
+ASSET_GROWTH_RATE: 10
+
+=== Top unmapped raw_metric_name ===
+지배주주EPS증가율: 20
+개별/연결순익(%): 16
+지배순익 증가율(%): 16
+CPS: 10
+CPS증가율(%): 10
+DPS: 10
+DPS증가율(%): 10
+EV/EBITDA: 10
+OPS: 10
+OPS증가율(%): 10
+PCR: 10
+PEG: 10
+POR: 10
+PRR: 10
+PSR: 10
+ROIC: 10
+ROIC증가율(%): 10
+SPS: 10
+SPS증가율(%): 10
+매입채무회전일수: 10
+매출채권회전일수: 10
+배당성향(%): 10
+설비투자비율: 10
+연간 배당률(%): 10
+재고자산회전일수: 10
+주가: 10
+주가상승률(%): 10
+주가상승율(%): 10
+주식수 (만주): 10
+주식수증가율(%): 10
+현금회전일수: 10
+DPS(연간): 4
+25년4Q(E): 1
+OPM(5년평균): 1
+PBR(5년평균): 1
+PER(5년평균): 1
+ROE(5년평균): 1
+YOY: 1
+고점PBR: 1
+고점PER: 1
+벨류점수: 1
+성장점수: 1
+수익점수: 1
+시가배당율: 1
+안정점수: 1
+업종: 1
+저점PBR: 1
+저점PER: 1
+주가(원): 1
+코드번호: 1
+회사명: 1
+
+=== Top unmapped normalized_metric_key ===
+지배주주eps증가율: 20 (distinct raw names: 1)
+/연결순익(%): 16 (distinct raw names: 1)
+지배순익 증가율(%): 16 (distinct raw names: 1)
+cps: 10 (distinct raw names: 1)
+cps증가율(%): 10 (distinct raw names: 1)
+dps: 10 (distinct raw names: 1)
+dps증가율(%): 10 (distinct raw names: 1)
+ev/ebitda: 10 (distinct raw names: 1)
+ops: 10 (distinct raw names: 1)
+ops증가율(%): 10 (distinct raw names: 1)
+pcr: 10 (distinct raw names: 1)
+peg: 10 (distinct raw names: 1)
+por: 10 (distinct raw names: 1)
+prr: 10 (distinct raw names: 1)
+psr: 10 (distinct raw names: 1)
+roic: 10 (distinct raw names: 1)
+roic증가율(%): 10 (distinct raw names: 1)
+sps: 10 (distinct raw names: 1)
+sps증가율(%): 10 (distinct raw names: 1)
+매입채무회전일수: 10 (distinct raw names: 1)
+매출채권회전일수: 10 (distinct raw names: 1)
+배당률(%): 10 (distinct raw names: 1)
+배당성향(%): 10 (distinct raw names: 1)
+설비투자비율: 10 (distinct raw names: 1)
+재고자산회전일수: 10 (distinct raw names: 1)
+주가: 10 (distinct raw names: 1)
+주가상승률(%): 10 (distinct raw names: 1)
+주가상승율(%): 10 (distinct raw names: 1)
+주식수 (만주): 10 (distinct raw names: 1)
+주식수증가율(%): 10 (distinct raw names: 1)
+현금회전일수: 10 (distinct raw names: 1)
+dps(연간): 4 (distinct raw names: 1)
+25년4q(e): 1 (distinct raw names: 1)
+opm(5년평균): 1 (distinct raw names: 1)
+pbr(5년평균): 1 (distinct raw names: 1)
+per(5년평균): 1 (distinct raw names: 1)
+roe(5년평균): 1 (distinct raw names: 1)
+yoy: 1 (distinct raw names: 1)
+고점pbr: 1 (distinct raw names: 1)
+고점per: 1 (distinct raw names: 1)
+벨류점수: 1 (distinct raw names: 1)
+성장점수: 1 (distinct raw names: 1)
+수익점수: 1 (distinct raw names: 1)
+시가배당율: 1 (distinct raw names: 1)
+안정점수: 1 (distinct raw names: 1)
+업종: 1 (distinct raw names: 1)
+저점pbr: 1 (distinct raw names: 1)
+저점per: 1 (distinct raw names: 1)
+주가(원): 1 (distinct raw names: 1)
+코드번호: 1 (distinct raw names: 1)
+회사명: 1 (distinct raw names: 1)
+
+=== Symbol-prefixed unmapped samples ===
+No symbol-prefixed unmapped rows found.
+
+=== Escaped unmapped normalized_metric_key samples ===
+\uc9c0\ubc30\uc8fc\uc8fceps\uc99d\uac00\uc728: 20 (distinct raw names: 1)
+/\uc5f0\uacb0\uc21c\uc775(%): 16 (distinct raw names: 1)
+\uc9c0\ubc30\uc21c\uc775 \uc99d\uac00\uc728(%): 16 (distinct raw names: 1)
+cps: 10 (distinct raw names: 1)
+cps\uc99d\uac00\uc728(%): 10 (distinct raw names: 1)
+dps: 10 (distinct raw names: 1)
+dps\uc99d\uac00\uc728(%): 10 (distinct raw names: 1)
+ev/ebitda: 10 (distinct raw names: 1)
+ops: 10 (distinct raw names: 1)
+ops\uc99d\uac00\uc728(%): 10 (distinct raw names: 1)
+pcr: 10 (distinct raw names: 1)
+peg: 10 (distinct raw names: 1)
+por: 10 (distinct raw names: 1)
+prr: 10 (distinct raw names: 1)
+psr: 10 (distinct raw names: 1)
+roic: 10 (distinct raw names: 1)
+roic\uc99d\uac00\uc728(%): 10 (distinct raw names: 1)
+sps: 10 (distinct raw names: 1)
+sps\uc99d\uac00\uc728(%): 10 (distinct raw names: 1)
+\ub9e4\uc785\ucc44\ubb34\ud68c\uc804\uc77c\uc218: 10 (distinct raw names: 1)
+\ub9e4\ucd9c\ucc44\uad8c\ud68c\uc804\uc77c\uc218: 10 (distinct raw names: 1)
+\ubc30\ub2f9\ub960(%): 10 (distinct raw names: 1)
+\ubc30\ub2f9\uc131\ud5a5(%): 10 (distinct raw names: 1)
+\uc124\ube44\ud22c\uc790\ube44\uc728: 10 (distinct raw names: 1)
+\uc7ac\uace0\uc790\uc0b0\ud68c\uc804\uc77c\uc218: 10 (distinct raw names: 1)
+\uc8fc\uac00: 10 (distinct raw names: 1)
+\uc8fc\uac00\uc0c1\uc2b9\ub960(%): 10 (distinct raw names: 1)
+\uc8fc\uac00\uc0c1\uc2b9\uc728(%): 10 (distinct raw names: 1)
+\uc8fc\uc2dd\uc218 (\ub9cc\uc8fc): 10 (distinct raw names: 1)
+\uc8fc\uc2dd\uc218\uc99d\uac00\uc728(%): 10 (distinct raw names: 1)
+
+=== Escaped unmapped raw_metric_name samples ===
+\uc9c0\ubc30\uc8fc\uc8fcEPS\uc99d\uac00\uc728: 20
+\uac1c\ubcc4/\uc5f0\uacb0\uc21c\uc775(%): 16
+\uc9c0\ubc30\uc21c\uc775 \uc99d\uac00\uc728(%): 16
+CPS: 10
+CPS\uc99d\uac00\uc728(%): 10
+DPS: 10
+DPS\uc99d\uac00\uc728(%): 10
+EV/EBITDA: 10
+OPS: 10
+OPS\uc99d\uac00\uc728(%): 10
+PCR: 10
+PEG: 10
+POR: 10
+PRR: 10
+PSR: 10
+ROIC: 10
+ROIC\uc99d\uac00\uc728(%): 10
+SPS: 10
+SPS\uc99d\uac00\uc728(%): 10
+\ub9e4\uc785\ucc44\ubb34\ud68c\uc804\uc77c\uc218: 10
+\ub9e4\ucd9c\ucc44\uad8c\ud68c\uc804\uc77c\uc218: 10
+\ubc30\ub2f9\uc131\ud5a5(%): 10
+\uc124\ube44\ud22c\uc790\ube44\uc728: 10
+\uc5f0\uac04 \ubc30\ub2f9\ub960(%): 10
+\uc7ac\uace0\uc790\uc0b0\ud68c\uc804\uc77c\uc218: 10
+\uc8fc\uac00: 10
+\uc8fc\uac00\uc0c1\uc2b9\ub960(%): 10
+\uc8fc\uac00\uc0c1\uc2b9\uc728(%): 10
+\uc8fc\uc2dd\uc218 (\ub9cc\uc8fc): 10
+\uc8fc\uc2dd\uc218\uc99d\uac00\uc728(%): 10
+
+=== Escaped symbol-prefixed unmapped samples ===
+No symbol-prefixed unmapped rows found.
+
+=== Unmapped rows with active alias present ===
+No unmapped rows were found with an active alias in metric_alias_map.
+
+=== Unmapped policy bucket summary ===
+growth_rate_family: rows=96, distinct normalized metrics=8
+turnover_days_family: rows=40, distinct normalized metrics=4
+five_year_average_family: rows=4, distinct normalized metrics=4
+estimate_period_label_family: rows=1, distinct normalized metrics=1
+score_meta_family: rows=8, distinct normalized metrics=8
+dividend_family: rows=21, distinct normalized metrics=3
+
+=== Alias mapping samples ===
+매입채무 -> ACCOUNTS_PAYABLE
+매출채권 -> ACCOUNTS_RECEIVABLE
+관계기업손익 -> AFFILIATE_INCOME
+자산증가율(%) -> ASSET_GROWTH_RATE
+차입금 -> BORROWINGS
+차입률(%) -> BORROWING_RATIO
+bps -> BPS
+bps증가율(%) -> BPS_GROWTH_RATE
+설비투자 -> CAPEX
+설비투자증가율(%) -> CAPEX_GROWTH_RATE
+현금성자산 -> CASH_EQUIVALENTS
+종가 -> CLOSE_PRICE
+지배주주지분 -> CONTROLLING_EQUITY
+순익(지배) -> CONTROLLING_NET_INCOME
+지배순이익 -> CONTROLLING_NET_INCOME
+지배순익 -> CONTROLLING_NET_INCOME
+지배주주순이익 -> CONTROLLING_NET_INCOME
+법인세 -> CORPORATE_TAX
+매출원가 -> COST_OF_SALES
+유동자산 -> CURRENT_ASSETS
+유동부채 -> CURRENT_LIABILITIES
+유동비율 -> CURRENT_RATIO
+유동비율(%) -> CURRENT_RATIO
+부채비율 -> DEBT_RATIO
+부채비율(%) -> DEBT_RATIO
+감가상각비 -> DEPRECIATION_EXPENSE
+감가상각비율 -> DEPRECIATION_RATIO
+eps -> EPS
+eps증가율(%) -> EPS_GROWTH_RATE
+자본증가율(%) -> EQUITY_GROWTH_RATE
+fcf증가율(%) -> FCF_GROWTH_RATE
+금융손익 -> FINANCIAL_INCOME
+재무활동현금흐름 -> FINANCING_CASH_FLOW
+fcf -> FREE_CASH_FLOW
+잉여현금흐름 -> FREE_CASH_FLOW
+gpm -> GROSS_MARGIN
+매출총이익률 -> GROSS_MARGIN
+매출총이익률(%) -> GROSS_MARGIN
+매출총이익 -> GROSS_PROFIT
+고가 -> HIGH_PRICE
+무형자산 -> INTANGIBLE_ASSETS
+재고자산 -> INVENTORIES
+투하자본 -> INVESTED_CAPITAL
+투자활동현금흐름 -> INVESTING_CASH_FLOW
+투자자산 -> INVESTMENT_ASSETS
+저가 -> LOW_PRICE
+시가총액 -> MARKET_CAP
+시가총액(억) -> MARKET_CAP
+순차입금 -> NET_DEBT
+당기순이익 -> NET_INCOME
+
+=== Recent enriched rows ===
+[2432] integrated_id=2432 | company_key=오파스넷 | raw_metric_name=(개별)자본총계 | normalized_metric_key=자본총계 | standard_metric_name=TOTAL_EQUITY | metric_variant=개별 | period_type=YEAR | fy=2025 | fq=None | date_raw=2025/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2597 | selected_value_numeric=596 | selected_is_estimate=0
+[2431] integrated_id=2431 | company_key=오파스넷 | raw_metric_name=(개별)자본총계 | normalized_metric_key=자본총계 | standard_metric_name=TOTAL_EQUITY | metric_variant=개별 | period_type=YEAR | fy=2024 | fq=None | date_raw=2024/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2596 | selected_value_numeric=536 | selected_is_estimate=0
+[2430] integrated_id=2430 | company_key=오파스넷 | raw_metric_name=(개별)자본총계 | normalized_metric_key=자본총계 | standard_metric_name=TOTAL_EQUITY | metric_variant=개별 | period_type=YEAR | fy=2023 | fq=None | date_raw=2023/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2595 | selected_value_numeric=460 | selected_is_estimate=0
+[2429] integrated_id=2429 | company_key=오파스넷 | raw_metric_name=(개별)자본총계 | normalized_metric_key=자본총계 | standard_metric_name=TOTAL_EQUITY | metric_variant=개별 | period_type=YEAR | fy=2022 | fq=None | date_raw=2022/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2594 | selected_value_numeric=354 | selected_is_estimate=0
+[2428] integrated_id=2428 | company_key=오파스넷 | raw_metric_name=(개별)자본총계 | normalized_metric_key=자본총계 | standard_metric_name=TOTAL_EQUITY | metric_variant=개별 | period_type=YEAR | fy=2021 | fq=None | date_raw=2021/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2593 | selected_value_numeric=291 | selected_is_estimate=0
+[2427] integrated_id=2427 | company_key=오파스넷 | raw_metric_name=(개별)자본총계 | normalized_metric_key=자본총계 | standard_metric_name=TOTAL_EQUITY | metric_variant=개별 | period_type=YEAR | fy=2020 | fq=None | date_raw=2020/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2592 | selected_value_numeric=226 | selected_is_estimate=0
+[2426] integrated_id=2426 | company_key=오파스넷 | raw_metric_name=(개별)자본총계 | normalized_metric_key=자본총계 | standard_metric_name=TOTAL_EQUITY | metric_variant=개별 | period_type=YEAR | fy=2019 | fq=None | date_raw=2019/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2591 | selected_value_numeric=177 | selected_is_estimate=0
+[2425] integrated_id=2425 | company_key=오파스넷 | raw_metric_name=(개별)자본총계 | normalized_metric_key=자본총계 | standard_metric_name=TOTAL_EQUITY | metric_variant=개별 | period_type=YEAR | fy=2018 | fq=None | date_raw=2018/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2590 | selected_value_numeric=302 | selected_is_estimate=0
+[2424] integrated_id=2424 | company_key=오파스넷 | raw_metric_name=(개별)자본총계 | normalized_metric_key=자본총계 | standard_metric_name=TOTAL_EQUITY | metric_variant=개별 | period_type=YEAR | fy=2017 | fq=None | date_raw=2017/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2589 | selected_value_numeric=166 | selected_is_estimate=0
+[2423] integrated_id=2423 | company_key=오파스넷 | raw_metric_name=(개별)자본총계 | normalized_metric_key=자본총계 | standard_metric_name=TOTAL_EQUITY | metric_variant=개별 | period_type=YEAR | fy=2016 | fq=None | date_raw=2016/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2588 | selected_value_numeric=132 | selected_is_estimate=0
+[2422] integrated_id=2422 | company_key=오파스넷 | raw_metric_name=(개별)부채총계 | normalized_metric_key=부채총계 | standard_metric_name=TOTAL_LIABILITIES | metric_variant=개별 | period_type=YEAR | fy=2025 | fq=None | date_raw=2025/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2587 | selected_value_numeric=718 | selected_is_estimate=0
+[2421] integrated_id=2421 | company_key=오파스넷 | raw_metric_name=(개별)부채총계 | normalized_metric_key=부채총계 | standard_metric_name=TOTAL_LIABILITIES | metric_variant=개별 | period_type=YEAR | fy=2024 | fq=None | date_raw=2024/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2586 | selected_value_numeric=828 | selected_is_estimate=0
+[2420] integrated_id=2420 | company_key=오파스넷 | raw_metric_name=(개별)부채총계 | normalized_metric_key=부채총계 | standard_metric_name=TOTAL_LIABILITIES | metric_variant=개별 | period_type=YEAR | fy=2023 | fq=None | date_raw=2023/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2585 | selected_value_numeric=792 | selected_is_estimate=0
+[2419] integrated_id=2419 | company_key=오파스넷 | raw_metric_name=(개별)부채총계 | normalized_metric_key=부채총계 | standard_metric_name=TOTAL_LIABILITIES | metric_variant=개별 | period_type=YEAR | fy=2022 | fq=None | date_raw=2022/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2584 | selected_value_numeric=840 | selected_is_estimate=0
+[2418] integrated_id=2418 | company_key=오파스넷 | raw_metric_name=(개별)부채총계 | normalized_metric_key=부채총계 | standard_metric_name=TOTAL_LIABILITIES | metric_variant=개별 | period_type=YEAR | fy=2021 | fq=None | date_raw=2021/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2583 | selected_value_numeric=479 | selected_is_estimate=0
+[2417] integrated_id=2417 | company_key=오파스넷 | raw_metric_name=(개별)부채총계 | normalized_metric_key=부채총계 | standard_metric_name=TOTAL_LIABILITIES | metric_variant=개별 | period_type=YEAR | fy=2020 | fq=None | date_raw=2020/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2582 | selected_value_numeric=283 | selected_is_estimate=0
+[2416] integrated_id=2416 | company_key=오파스넷 | raw_metric_name=(개별)부채총계 | normalized_metric_key=부채총계 | standard_metric_name=TOTAL_LIABILITIES | metric_variant=개별 | period_type=YEAR | fy=2019 | fq=None | date_raw=2019/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2581 | selected_value_numeric=481 | selected_is_estimate=0
+[2415] integrated_id=2415 | company_key=오파스넷 | raw_metric_name=(개별)부채총계 | normalized_metric_key=부채총계 | standard_metric_name=TOTAL_LIABILITIES | metric_variant=개별 | period_type=YEAR | fy=2018 | fq=None | date_raw=2018/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2580 | selected_value_numeric=213 | selected_is_estimate=0
+[2414] integrated_id=2414 | company_key=오파스넷 | raw_metric_name=(개별)부채총계 | normalized_metric_key=부채총계 | standard_metric_name=TOTAL_LIABILITIES | metric_variant=개별 | period_type=YEAR | fy=2017 | fq=None | date_raw=2017/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2579 | selected_value_numeric=174 | selected_is_estimate=0
+[2413] integrated_id=2413 | company_key=오파스넷 | raw_metric_name=(개별)부채총계 | normalized_metric_key=부채총계 | standard_metric_name=TOTAL_LIABILITIES | metric_variant=개별 | period_type=YEAR | fy=2016 | fq=None | date_raw=2016/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2578 | selected_value_numeric=162 | selected_is_estimate=0
+[2412] integrated_id=2412 | company_key=오파스넷 | raw_metric_name=(개별)총자산 | normalized_metric_key=총자산 | standard_metric_name=TOTAL_ASSETS | metric_variant=개별 | period_type=YEAR | fy=2025 | fq=None | date_raw=2025/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2577 | selected_value_numeric=1314 | selected_is_estimate=0
+[2411] integrated_id=2411 | company_key=오파스넷 | raw_metric_name=(개별)총자산 | normalized_metric_key=총자산 | standard_metric_name=TOTAL_ASSETS | metric_variant=개별 | period_type=YEAR | fy=2024 | fq=None | date_raw=2024/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2576 | selected_value_numeric=1364 | selected_is_estimate=0
+[2410] integrated_id=2410 | company_key=오파스넷 | raw_metric_name=(개별)총자산 | normalized_metric_key=총자산 | standard_metric_name=TOTAL_ASSETS | metric_variant=개별 | period_type=YEAR | fy=2023 | fq=None | date_raw=2023/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2575 | selected_value_numeric=1252 | selected_is_estimate=0
+[2409] integrated_id=2409 | company_key=오파스넷 | raw_metric_name=(개별)총자산 | normalized_metric_key=총자산 | standard_metric_name=TOTAL_ASSETS | metric_variant=개별 | period_type=YEAR | fy=2022 | fq=None | date_raw=2022/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2574 | selected_value_numeric=1194 | selected_is_estimate=0
+[2408] integrated_id=2408 | company_key=오파스넷 | raw_metric_name=(개별)총자산 | normalized_metric_key=총자산 | standard_metric_name=TOTAL_ASSETS | metric_variant=개별 | period_type=YEAR | fy=2021 | fq=None | date_raw=2021/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2573 | selected_value_numeric=770 | selected_is_estimate=0
+[2407] integrated_id=2407 | company_key=오파스넷 | raw_metric_name=(개별)총자산 | normalized_metric_key=총자산 | standard_metric_name=TOTAL_ASSETS | metric_variant=개별 | period_type=YEAR | fy=2020 | fq=None | date_raw=2020/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2572 | selected_value_numeric=509 | selected_is_estimate=0
+[2406] integrated_id=2406 | company_key=오파스넷 | raw_metric_name=(개별)총자산 | normalized_metric_key=총자산 | standard_metric_name=TOTAL_ASSETS | metric_variant=개별 | period_type=YEAR | fy=2019 | fq=None | date_raw=2019/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2571 | selected_value_numeric=658 | selected_is_estimate=0
+[2405] integrated_id=2405 | company_key=오파스넷 | raw_metric_name=(개별)총자산 | normalized_metric_key=총자산 | standard_metric_name=TOTAL_ASSETS | metric_variant=개별 | period_type=YEAR | fy=2018 | fq=None | date_raw=2018/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2570 | selected_value_numeric=515 | selected_is_estimate=0
+[2404] integrated_id=2404 | company_key=오파스넷 | raw_metric_name=(개별)총자산 | normalized_metric_key=총자산 | standard_metric_name=TOTAL_ASSETS | metric_variant=개별 | period_type=YEAR | fy=2017 | fq=None | date_raw=2017/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2569 | selected_value_numeric=340 | selected_is_estimate=0
+[2403] integrated_id=2403 | company_key=오파스넷 | raw_metric_name=(개별)총자산 | normalized_metric_key=총자산 | standard_metric_name=TOTAL_ASSETS | metric_variant=개별 | period_type=YEAR | fy=2016 | fq=None | date_raw=2016/01/01 | selected_source_group=QDATA | selected_raw_observation_id=2568 | selected_value_numeric=294 | selected_is_estimate=0
+PS C:\Users\slpar\OneDrive\문서\CODEX>
