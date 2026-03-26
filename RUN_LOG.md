@@ -568,3 +568,43 @@
 - deleted temporary smoke-test files:
   - `data/release_test.sqlite3`
   - `data/releases/financial_pipeline_test_release_candidate.sqlite3`
+## 2026-03-27
+
+### FnGuide policy closeout
+- reviewed:
+  - `README.md`
+  - `PROJECT_STATUS.md`
+  - `RUN_LOG.md`
+  - `docs/current_architecture.md`
+  - `docs/fnguide_ingestion.md`
+  - `docs/fnguide_handoff_current.md`
+  - `outputs/fnguide_validation/fnguide_company_counts.csv`
+  - `outputs/fnguide_validation/fnguide_controlled_batch_validation.md`
+- classified the 14-company local FnGuide universe into:
+  - `9` stable all-block companies
+  - `5` source-side sparse companies
+- drafted current operating policy:
+  - recurring refresh allowlist defaults to the stable all-block cohort
+  - `partial` / `sparse` companies remain stored and auditable but are excluded
+    from all-block-dependent downstream logic by default
+  - missing blocks with clean fetch logs are treated as source-side sparse
+    success, not technical failure
+- updated:
+  - `docs/update_policy.md`
+  - `docs/fnguide_ingestion.md`
+  - `docs/fnguide_handoff_current.md`
+  - `PROJECT_STATUS.md`
+
+### Commands run
+- `& 'C:\Program Files\Git\cmd\git.exe' status --short`
+
+### Important outputs
+- current FnGuide classification:
+  - `full`: `9`
+  - `partial`: `1`
+  - `sparse`: `4`
+  - `technical_failure`: `0`
+- current git working tree remains dirty with unrelated DB, input, output, and
+  scratch-file changes
+- policy docs are ready for a curated commit later, but the repository is not
+  clean enough for a broad commit as-is
