@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
@@ -40,6 +41,10 @@ REQUEST_HEADERS = {
     ),
     "Referer": "https://comp.fnguide.com/",
 }
+REQUEST_MIN_INTERVAL_SECONDS = 1.2
+REQUEST_SESSION = requests.Session()
+REQUEST_SESSION.headers.update(REQUEST_HEADERS)
+_LAST_REQUEST_AT = 0.0
 
 DATE_PATTERN = re.compile(r"^(?P<year>\d{4})/(?P<month>\d{2})(?:/(?P<day>\d{2}))?(?P<estimate>\(E\))?$")
 RELATIVE_PERIOD_PATTERN = re.compile(r"^\d+(개월전|년전)$")
@@ -78,20 +83,43 @@ def clean_text(value: Any) -> str:
     return str(value).replace("\xa0", " ").strip()
 
 
+def normalize_stock_code(stock_code: str | None) -> str:
+    cleaned = clean_text(stock_code)
+    if cleaned.startswith("A"):
+        cleaned = cleaned[1:]
+    return cleaned
+
+
 def normalize_gicode(stock_code: str) -> str:
-    stock_code = stock_code.strip()
-    return stock_code if stock_code.startswith("A") else f"A{stock_code}"
+    normalized_stock_code = normalize_stock_code(stock_code)
+    if not normalized_stock_code:
+        raise ValueError("A six-digit stock_code is required to build a FnGuide gicode.")
+    return f"A{normalized_stock_code}"
+
+
+def _throttle_request() -> None:
+    global _LAST_REQUEST_AT
+    now = time.monotonic()
+    wait_seconds = REQUEST_MIN_INTERVAL_SECONDS - (now - _LAST_REQUEST_AT)
+    if wait_seconds > 0:
+        time.sleep(wait_seconds)
+    _LAST_REQUEST_AT = time.monotonic()
+
+
+def _http_get(url: str) -> requests.Response:
+    _throttle_request()
+    response = REQUEST_SESSION.get(url, timeout=30)
+    response.raise_for_status()
+    return response
 
 
 def _fetch_text(url: str) -> str:
-    response = requests.get(url, headers=REQUEST_HEADERS, timeout=30)
-    response.raise_for_status()
+    response = _http_get(url)
     return response.text
 
 
 def _fetch_json(path: str) -> dict[str, Any]:
-    response = requests.get(JSON_URL_TEMPLATE.format(path=path), headers=REQUEST_HEADERS, timeout=30)
-    response.raise_for_status()
+    response = _http_get(JSON_URL_TEMPLATE.format(path=path))
     return json.loads(response.content.decode("utf-8-sig"))
 
 
@@ -119,7 +147,14 @@ def fetch_main_page(stock_code: str = DEFAULT_STOCK_CODE) -> FnGuidePageBundle:
     )
 
 
-def resolve_company_context(engine, company_name: str = DEFAULT_COMPANY_NAME, stock_code: str = DEFAULT_STOCK_CODE) -> FnGuideCompanyContext:
+def resolve_company_context(
+    engine,
+    company_name: str | None = DEFAULT_COMPANY_NAME,
+    stock_code: str | None = DEFAULT_STOCK_CODE,
+) -> FnGuideCompanyContext:
+    requested_company_name = clean_text(company_name)
+    requested_stock_code = normalize_stock_code(stock_code)
+
     with engine.begin() as connection:
         row = connection.execute(
             text(
@@ -132,23 +167,87 @@ def resolve_company_context(engine, company_name: str = DEFAULT_COMPANY_NAME, st
                 LIMIT 1
                 """
             ),
-            {"stock_code": stock_code, "company_name": company_name},
+            {"stock_code": requested_stock_code, "company_name": requested_company_name},
         ).mappings().first()
 
     if row:
+        resolved_stock_code = normalize_stock_code(row["normalized_stock_code"] or requested_stock_code)
         return FnGuideCompanyContext(
-            company_name=row["company_name"] or company_name,
-            stock_code=row["normalized_stock_code"] or stock_code,
-            gicode=normalize_gicode(row["normalized_stock_code"] or stock_code),
+            company_name=row["company_name"] or requested_company_name or requested_stock_code,
+            stock_code=resolved_stock_code,
+            gicode=normalize_gicode(resolved_stock_code),
             company_id=row["company_id"],
         )
 
-    return FnGuideCompanyContext(
-        company_name=company_name,
-        stock_code=stock_code,
-        gicode=normalize_gicode(stock_code),
-        company_id=None,
-    )
+    if requested_stock_code:
+        fallback_company_name = requested_company_name or requested_stock_code
+        return FnGuideCompanyContext(
+            company_name=fallback_company_name,
+            stock_code=requested_stock_code,
+            gicode=normalize_gicode(requested_stock_code),
+            company_id=None,
+        )
+
+    if requested_company_name:
+        raise ValueError(
+            f"Could not resolve FnGuide company '{requested_company_name}' to a normalized stock code."
+        )
+
+    raise ValueError("Either company_name or stock_code is required for FnGuide ingestion.")
+
+
+def build_company_output_stem(company: FnGuideCompanyContext) -> str:
+    return normalize_stock_code(company.stock_code)
+
+
+def output_stem_for_company(company: FnGuideCompanyContext) -> str | None:
+    if normalize_stock_code(company.stock_code) == normalize_stock_code(DEFAULT_STOCK_CODE):
+        return None
+    return build_company_output_stem(company)
+
+
+def default_company_request() -> tuple[str, str]:
+    return DEFAULT_COMPANY_NAME, normalize_stock_code(DEFAULT_STOCK_CODE)
+
+
+def requested_company_or_default(company_name: str | None, stock_code: str | None) -> tuple[str | None, str | None]:
+    requested_company_name = clean_text(company_name) or None
+    requested_stock_code = normalize_stock_code(stock_code) or None
+    if requested_company_name or requested_stock_code:
+        return requested_company_name, requested_stock_code
+    return default_company_request()
+
+
+def validation_output_paths(
+    company: FnGuideCompanyContext,
+    output_stem: str | None = None,
+) -> dict[str, Path]:
+    output_dir = ensure_fnguide_output_dir()
+    if output_stem:
+        stem = output_stem
+        return {
+            "consensus_financial_csv": output_dir / f"{stem}_consensus_financial_long.csv",
+            "consensus_revision_csv": output_dir / f"{stem}_consensus_revision_long.csv",
+            "broker_target_csv": output_dir / f"{stem}_broker_target_prices.csv",
+            "report_summary_csv": output_dir / f"{stem}_report_summary.csv",
+            "shareholder_csv": output_dir / f"{stem}_shareholder_snapshot.csv",
+            "business_summary_txt": output_dir / f"{stem}_business_summary.txt",
+            "validation_report_md": output_dir / f"{stem}_validation_report.md",
+            "db_check_md": output_dir / f"{stem}_db_check.md",
+            "layout_debug_md": output_dir / f"{stem}_layout_debug.md",
+        }
+
+    return {
+        "consensus_financial_csv": output_dir / "samsung_consensus_financial_long.csv",
+        "consensus_revision_csv": output_dir / "samsung_consensus_revision_long.csv",
+        "broker_target_csv": output_dir / "samsung_broker_target_prices.csv",
+        "report_summary_csv": output_dir / "samsung_report_summary.csv",
+        "shareholder_csv": output_dir / "samsung_shareholder_snapshot.csv",
+        "business_summary_txt": output_dir / "samsung_business_summary.txt",
+        "validation_report_md": output_dir / "fnguide_validation_report.md",
+        "db_check_md": output_dir / "fnguide_db_check.md",
+        "layout_debug_md": output_dir / "fnguide_layout_debug.md",
+    }
 
 
 def detect_consensus_modes(bundle: FnGuidePageBundle) -> dict[str, Any]:
@@ -794,17 +893,12 @@ def markdown_table_from_mappings(rows: list[dict[str, Any]], columns: list[str])
     return "\n".join([header, divider, *body]) + "\n"
 
 
-def write_validation_outputs(parsed: dict[str, Any], db_counts: dict[str, int]) -> dict[str, Path]:
-    output_dir = ensure_fnguide_output_dir()
-    paths = {
-        "consensus_financial_csv": output_dir / "samsung_consensus_financial_long.csv",
-        "consensus_revision_csv": output_dir / "samsung_consensus_revision_long.csv",
-        "broker_target_csv": output_dir / "samsung_broker_target_prices.csv",
-        "report_summary_csv": output_dir / "samsung_report_summary.csv",
-        "shareholder_csv": output_dir / "samsung_shareholder_snapshot.csv",
-        "business_summary_txt": output_dir / "samsung_business_summary.txt",
-        "validation_report_md": output_dir / "fnguide_validation_report.md",
-    }
+def write_validation_outputs(
+    parsed: dict[str, Any],
+    db_counts: dict[str, int],
+    output_stem: str | None = None,
+) -> dict[str, Path]:
+    paths = validation_output_paths(parsed["company"], output_stem=output_stem)
 
     dataframe_from_records(parsed["consensus_financial_records"]).to_csv(paths["consensus_financial_csv"], index=False, encoding="utf-8-sig")
     dataframe_from_records(parsed["consensus_revision_records"]).to_csv(paths["consensus_revision_csv"], index=False, encoding="utf-8-sig")
@@ -847,7 +941,7 @@ def write_validation_outputs(parsed: dict[str, Any], db_counts: dict[str, int]) 
         "## Requests-only viability",
         "- consensus and broker/report blocks are available through requests-accessible JSON endpoints",
         "- shareholder and Business Summary are available through requests-accessible HTML",
-        "- Selenium fallback is not required for the current Samsung implementation",
+        "- Selenium fallback is not required for the current company implementation",
         "",
         "## DB row counts",
         *(f"- {name}: {count}" for name, count in db_counts.items()),
@@ -888,9 +982,12 @@ def write_validation_outputs(parsed: dict[str, Any], db_counts: dict[str, int]) 
     return paths
 
 
-def write_db_check_report(engine, company: FnGuideCompanyContext) -> Path:
-    output_dir = ensure_fnguide_output_dir()
-    report_path = output_dir / "fnguide_db_check.md"
+def write_db_check_report(
+    engine,
+    company: FnGuideCompanyContext,
+    output_stem: str | None = None,
+) -> Path:
+    report_path = validation_output_paths(company, output_stem=output_stem)["db_check_md"]
     with engine.begin() as connection:
         raw_sample = connection.execute(
             text(

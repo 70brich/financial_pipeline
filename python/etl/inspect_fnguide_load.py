@@ -1,9 +1,15 @@
 from __future__ import annotations
 
+import argparse
+
 from sqlalchemy import text
 
 from python.etl.db_runtime import DEFAULT_SQLITE_DB_PATH, create_sqlite_engine, ensure_runtime_schema
-from python.etl.parse_fnguide import DEFAULT_STOCK_CODE, execute_fnguide_schema
+from python.etl.parse_fnguide import (
+    execute_fnguide_schema,
+    requested_company_or_default,
+    resolve_company_context,
+)
 
 
 def _safe_text(value) -> str:
@@ -20,10 +26,24 @@ def _print_section(title: str, rows, formatter) -> None:
         print(_safe_text(formatter(row)))
 
 
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Inspect the persisted FnGuide sidecar tables for one company.")
+    parser.add_argument("--company-name", help="Company name to resolve through the company table.")
+    parser.add_argument("--stock-code", help="Six-digit stock code to inspect directly.")
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = _parse_args()
     engine = create_sqlite_engine()
     ensure_runtime_schema(engine)
     execute_fnguide_schema(engine)
+    requested_company_name, requested_stock_code = requested_company_or_default(args.company_name, args.stock_code)
+    company = resolve_company_context(
+        engine,
+        company_name=requested_company_name,
+        stock_code=requested_stock_code,
+    )
 
     with engine.begin() as connection:
         fetch_logs = connection.execute(
@@ -35,7 +55,7 @@ def main() -> None:
                 ORDER BY fetch_log_id
                 """
             ),
-            {"stock_code": DEFAULT_STOCK_CODE},
+            {"stock_code": company.stock_code},
         ).mappings().all()
 
         block_counts = connection.execute(
@@ -48,7 +68,7 @@ def main() -> None:
                 ORDER BY row_count DESC, block_type
                 """
             ),
-            {"stock_code": DEFAULT_STOCK_CODE},
+            {"stock_code": company.stock_code},
         ).mappings().all()
 
         table_counts = connection.execute(
@@ -66,7 +86,7 @@ def main() -> None:
                 SELECT 'company_business_summary', COUNT(*) FROM company_business_summary WHERE stock_code = :stock_code
                 """
             ),
-            {"stock_code": DEFAULT_STOCK_CODE},
+            {"stock_code": company.stock_code},
         ).mappings().all()
 
         raw_sample = connection.execute(
@@ -79,7 +99,7 @@ def main() -> None:
                 LIMIT 20
                 """
             ),
-            {"stock_code": DEFAULT_STOCK_CODE},
+            {"stock_code": company.stock_code},
         ).mappings().all()
 
         broker_sample = connection.execute(
@@ -92,7 +112,7 @@ def main() -> None:
                 LIMIT 10
                 """
             ),
-            {"stock_code": DEFAULT_STOCK_CODE},
+            {"stock_code": company.stock_code},
         ).mappings().all()
 
         report_sample = connection.execute(
@@ -105,7 +125,7 @@ def main() -> None:
                 LIMIT 10
                 """
             ),
-            {"stock_code": DEFAULT_STOCK_CODE},
+            {"stock_code": company.stock_code},
         ).mappings().all()
 
         shareholder_sample = connection.execute(
@@ -118,7 +138,7 @@ def main() -> None:
                 LIMIT 10
                 """
             ),
-            {"stock_code": DEFAULT_STOCK_CODE},
+            {"stock_code": company.stock_code},
         ).mappings().all()
 
         business_summary = connection.execute(
@@ -131,12 +151,13 @@ def main() -> None:
                 LIMIT 1
                 """
             ),
-            {"stock_code": DEFAULT_STOCK_CODE},
+            {"stock_code": company.stock_code},
         ).mappings().first()
 
     print("FnGuide load inspection")
     print(f"Database: {DEFAULT_SQLITE_DB_PATH}")
-    print(f"stock_code: {DEFAULT_STOCK_CODE}")
+    print(f"company_name: {company.company_name}")
+    print(f"stock_code: {company.stock_code}")
 
     _print_section(
         "=== URL / mode combinations ===",
