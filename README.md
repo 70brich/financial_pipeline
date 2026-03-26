@@ -178,6 +178,15 @@ py -3 -m python.etl.inspect_fnguide_load
 py -3 -m unittest tests.test_parse_fnguide
 ```
 
+Release management scaffold:
+
+```powershell
+py -3 -m python.etl.run_incremental_update
+py -3 -m python.etl.run_full_rebuild --release-label 2026Q2_candidate
+py -3 -m python.etl.inspect_release
+py -3 -m python.etl.compare_release_series --release-label 2026Q2_candidate
+```
+
 Current derived layer snapshot:
 
 - `company_metric_derived_v1`: `440`
@@ -208,6 +217,8 @@ Current analysis layer snapshot:
   - non-destructive derived metric views built on top of the analysis layer
 - `sql/009_create_fnguide_tables.sql`
   - non-destructive FnGuide sidecar ingestion tables
+- `sql/010_create_release_management_tables.sql`
+  - non-destructive update / rebuild / release management metadata tables
 
 ## Current scope
 
@@ -224,6 +235,7 @@ Implemented:
 - derived metric `company_metric_derived_v1` view
 - documented conservative metric taxonomy v1
 - documented data quality and validation checklist for the v1 baseline
+- metadata-first update / rebuild / release management scaffold
 
 Not implemented yet:
 
