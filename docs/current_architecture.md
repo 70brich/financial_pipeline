@@ -135,9 +135,26 @@ Role:
 - keeps null handling explicit when prior periods or denominators are missing
 - stays fully non-destructive by building only on `company_metric_timeseries`
 
+### 7. Operations and release-management layer
+Tables:
+
+- `ingest_run`
+- `source_snapshot`
+- `series_change_audit`
+- `release_registry`
+
+Role:
+
+- tracks update / rebuild / promote / rollback metadata
+- keeps source-hash and release-file evidence separate from raw observations
+- supports current / candidate / archive database management
+- does not change validated raw, integrated, or enriched semantics by itself
+
 ## Current database file
 
-- `data/financial_pipeline.sqlite3`
+- active current DB: `data/financial_pipeline.sqlite3`
+- candidate DB directory: `data/releases/`
+- archive DB directory: `data/archive/`
 
 ## Main SQL files
 
@@ -148,6 +165,7 @@ Role:
 - `sql/007_create_analysis_views.sql`
 - `sql/008_create_derived_metric_views.sql`
 - `sql/009_create_fnguide_tables.sql`
+- `sql/010_create_release_management_tables.sql`
 
 See also:
 
@@ -247,6 +265,15 @@ FnGuide sidecar source:
 - `py -3 -m python.etl.debug_fnguide_layout`
 - `py -3 -m python.etl.run_fnguide_parser`
 - `py -3 -m python.etl.inspect_fnguide_load`
+
+Release-management source:
+
+- `py -3 -m python.etl.run_incremental_update`
+- `py -3 -m python.etl.run_full_rebuild`
+- `py -3 -m python.etl.inspect_release`
+- `py -3 -m python.etl.compare_release_series`
+- `py -3 -m python.etl.promote_release`
+- `py -3 -m python.etl.rollback_release`
 
 ## Current non-goals
 

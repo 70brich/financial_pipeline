@@ -67,6 +67,18 @@ py -3 -m python.etl.run_fnguide_parser
 py -3 -m python.etl.inspect_fnguide_load
 ```
 
+10. Optional release-management metadata capture
+
+```powershell
+py -3 -m python.etl.run_incremental_update
+```
+
+11. Optional candidate rebuild scaffold
+
+```powershell
+py -3 -m python.etl.run_full_rebuild --release-label 2026Q2_candidate
+```
+
 Optional seed-only step:
 
 ```powershell
@@ -141,6 +153,18 @@ FnGuide:
 py -3 -m python.etl.inspect_fnguide_load
 ```
 
+Release metadata:
+
+```powershell
+py -3 -m python.etl.inspect_release
+```
+
+Release comparison:
+
+```powershell
+py -3 -m python.etl.compare_release_series --release-label 2026Q2_candidate
+```
+
 ## Notes
 
 - Rebuild scripts are designed to replace their target layer, not append forever.
@@ -156,3 +180,5 @@ py -3 -m python.etl.inspect_fnguide_load
   `company_metric_timeseries`.
 - FnGuide is currently a sidecar web-ingestion source and does not yet feed
   `integrated_observation`.
+- release-management scripts are metadata-first scaffolds; promotion and
+  rollback are dry-run unless `--apply` is explicitly set.

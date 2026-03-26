@@ -193,6 +193,51 @@ Role:
 - shows loaded row counts and sample rows
 - shows Samsung shareholder and Business Summary samples
 
+## Release management
+
+### `python.etl.run_incremental_update`
+
+Role:
+
+- records an incremental update run in `ingest_run`
+- snapshots canonical source-file hashes into `source_snapshot`
+- intentionally does not mutate validated raw or integrated layers yet
+
+### `python.etl.run_full_rebuild`
+
+Role:
+
+- creates a candidate SQLite database copy
+- registers that candidate in `release_registry`
+- prepares the project for later full rebuild validation
+
+### `python.etl.inspect_release`
+
+Role:
+
+- shows release-management metadata counts
+- shows recent `release_registry` rows
+
+### `python.etl.compare_release_series`
+
+Role:
+
+- compares high-level managed-table row counts between current and another DB
+
+### `python.etl.promote_release`
+
+Role:
+
+- dry-run by default
+- when `--apply` is used, archives current and promotes a candidate DB
+
+### `python.etl.rollback_release`
+
+Role:
+
+- dry-run by default
+- when `--apply` is used, restores an archived DB into the current slot
+
 ## Notes
 
 - Rebuild scripts replace their target layer rather than append forever.

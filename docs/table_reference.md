@@ -250,6 +250,83 @@ Key fields:
 - `country_code`
 - `is_active`
 
+## Release-management layer
+
+### `ingest_run`
+
+Purpose:
+
+- stores operation-level update / rebuild / release runs
+
+Key fields:
+
+- `ingest_run_id`
+- `run_mode`
+- `source_group`
+- `target_scope`
+- `started_at`
+- `finished_at`
+- `status`
+- `release_label`
+- `notes`
+
+### `source_snapshot`
+
+Purpose:
+
+- stores source-level content-hash snapshots for change detection
+
+Key fields:
+
+- `source_snapshot_id`
+- `ingest_run_id`
+- `source_group`
+- `source_locator`
+- `content_hash`
+- `snapshot_type`
+- `detected_change_type`
+- `is_identical_to_previous`
+- `captured_at`
+
+### `series_change_audit`
+
+Purpose:
+
+- stores company / metric series change decisions and evidence
+
+Key fields:
+
+- `series_change_audit_id`
+- `ingest_run_id`
+- `company_name`
+- `stock_code`
+- `metric_name`
+- `ifrs_scope`
+- `period_scope`
+- `source_group`
+- `change_type`
+- `changed_period_count`
+- `old_series_hash`
+- `new_series_hash`
+- `remarks`
+
+### `release_registry`
+
+Purpose:
+
+- stores current / candidate / archive database file metadata
+
+Key fields:
+
+- `release_id`
+- `release_label`
+- `db_path`
+- `release_type`
+- `created_at`
+- `promoted_at`
+- `status`
+- `notes`
+
 ## Notes
 
 - `raw_metric_name` remains the source-of-truth metric label.
