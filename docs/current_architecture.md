@@ -13,6 +13,12 @@ Canonical source groups:
 Only files under `data/input/KDATA1`, `data/input/KDATA2`, and
 `data/input/QDATA` are treated as canonical inputs.
 
+Additional web source extension:
+
+- `FNGUIDE`
+  - currently implemented as a non-destructive sidecar ingestion layer
+  - does not mutate existing file-source constraints
+
 ## Current layers
 
 ### 1. File inventory
@@ -46,6 +52,23 @@ Current parsers:
 - `QDATA`
   - `overview`, `yearly`, `quarterly` sectors from CSV
 
+### 2a. FnGuide web-ingestion layer
+Tables:
+
+- `fnguide_fetch_log`
+- `fnguide_observation`
+- `broker_target_price`
+- `broker_report_summary`
+- `company_shareholder_snapshot`
+- `company_business_summary`
+
+Role:
+
+- stores requests-first web data from FnGuide
+- preserves source URL, page type, mode combination, and raw payload JSON
+- keeps numeric long-format observations separate from the file-ingest raw layer
+- avoids destructive schema changes to the validated file-source pipeline
+
 ### 3. Integrated selected layer
 Table:
 
@@ -68,16 +91,49 @@ Important limitation:
 ### 4. Enriched metric layer
 Tables:
 
+- `standard_metric`
+- `metric_name_mapping`
 - `metric_alias_map`
 - `integrated_observation_enriched`
 
 Role:
 
 - keeps `integrated_observation` unchanged
-- adds rule-based `standard_metric_name`
+- adds a master-keyed `standard_metric` structure
+- keeps a compatibility `standard_metric_name` string
 - preserves original `raw_metric_name`
 - uses `normalized_metric_key` only for lookup
 - leaves ambiguous metrics unmapped
+
+Implementation note:
+
+- `metric_name_mapping` is now the authoritative mapping table
+- `metric_alias_map` is retained as a compatibility mirror
+- `integrated_observation_enriched` now carries `standard_metric_id`
+
+### 5. Analysis layer
+View:
+
+- `company_metric_timeseries`
+
+Role:
+
+- provides a company / metric / period / value shape for direct analysis
+- joins enriched selections back to raw company identifier context
+- keeps company matching optional through left-join fallback logic
+- gives pandas-ready timeseries access without mutating validated source layers
+
+### 6. Derived analysis layer
+View:
+
+- `company_metric_derived_v1`
+
+Role:
+
+- computes first-pass YoY and QoQ growth metrics
+- computes first-pass margin metrics from base metrics
+- keeps null handling explicit when prior periods or denominators are missing
+- stays fully non-destructive by building only on `company_metric_timeseries`
 
 ## Current database file
 
@@ -88,6 +144,10 @@ Role:
 - `sql/003_create_base_financial_tables.sql`
 - `sql/004_create_integrated_tables.sql`
 - `sql/005_create_metric_mapping_tables.sql`
+- `sql/006_create_standard_metric_master_tables.sql`
+- `sql/007_create_analysis_views.sql`
+- `sql/008_create_derived_metric_views.sql`
+- `sql/009_create_fnguide_tables.sql`
 
 See also:
 
@@ -95,10 +155,20 @@ See also:
   - table-by-table reference for current layers
 - `docs/metric_taxonomy_v1.md`
   - current conservative `standard_metric_name` taxonomy
+- `docs/standard_metric_master_v2.md`
+  - v2 master-keyed metric standardization design and verified baseline snapshot
 - `docs/runbook.md`
   - execution and validation order
 - `docs/script_reference.md`
   - Python entrypoint and helper summary
+- `docs/analysis_layer_v1.md`
+  - analysis view purpose, columns, and example SQL
+- `docs/derived_metrics_v1.md`
+  - derived metric view purpose, formulas, null handling, and example SQL
+- `docs/fnguide_ingestion.md`
+  - FnGuide ingestion flow, outputs, and execution commands
+- `docs/fnguide_data_dictionary.md`
+  - FnGuide table and field reference
 - `docs/current_limitations.md`
   - intentionally unimplemented scope and safe next areas
 
@@ -109,7 +179,35 @@ See also:
 3. Parse `KDATA2`
 4. Parse `QDATA`
 5. Rebuild `integrated_observation`
-6. Rebuild `integrated_observation_enriched`
+6. Seed `standard_metric` and `metric_name_mapping`
+7. Rebuild `integrated_observation_enriched`
+8. Create analysis views
+9. Create derived metric views
+
+FnGuide sample run:
+
+1. Debug live page structure
+2. Create FnGuide sidecar tables
+3. Load Samsung sample data
+4. Inspect DB/CSV/MD outputs
+
+## Current baseline snapshot
+
+The current operational baseline is `Financial Pipeline v2 standard_metric
+master`.
+
+- `standard_metric`: `79`
+- active `metric_name_mapping`: `141`
+- `integrated_observation_enriched`: `2432`
+- rows linked to `standard_metric_id`: `2077`
+- distinct coverage: `103 / 154 = 66.88%`
+- row-level coverage: `2077 / 2432 = 85.40%`
+- tests: `28 passed`
+
+For the full baseline note, see:
+
+- `docs/standard_metric_master_v2.md`
+- `PROJECT_STATUS.md`
 
 ## Main operational scripts
 
@@ -130,6 +228,25 @@ Selection layer:
 Metric enrichment:
 
 - `py -3 -m python.etl.run_standard_metric_mapping`
+- `py -3 -m python.etl.seed_standard_metric_master`
+- `py -3 -m python.etl.inspect_standard_metric_master`
+- `py -3 -m python.etl.inspect_unmapped_metrics`
+
+Analysis layer:
+
+- `py -3 -m python.etl.run_analysis_views`
+- `py -3 -m python.etl.inspect_company_metric_timeseries`
+
+Derived layer:
+
+- `py -3 -m python.etl.run_derived_views`
+- `py -3 -m python.etl.inspect_company_metric_derived`
+
+FnGuide sidecar source:
+
+- `py -3 -m python.etl.debug_fnguide_layout`
+- `py -3 -m python.etl.run_fnguide_parser`
+- `py -3 -m python.etl.inspect_fnguide_load`
 
 ## Current non-goals
 

@@ -78,6 +78,45 @@ Key fields:
 - `period_label_std`
 - `ingested_at`
 
+## FnGuide sidecar layer
+
+### `fnguide_fetch_log`
+
+Purpose:
+
+- stores FnGuide URL/mode fetch metadata
+
+### `fnguide_observation`
+
+Purpose:
+
+- stores FnGuide numeric long-format observations
+- currently used for consensus financial and revision blocks
+
+### `broker_target_price`
+
+Purpose:
+
+- stores broker target-price and opinion rows
+
+### `broker_report_summary`
+
+Purpose:
+
+- stores report summary rows
+
+### `company_shareholder_snapshot`
+
+Purpose:
+
+- stores shareholder-detail and shareholder-group rows
+
+### `company_business_summary`
+
+Purpose:
+
+- stores Business Summary text blocks
+
 ## Selected layer
 
 ### `integrated_observation`
@@ -112,16 +151,52 @@ Rebuild script:
 
 ## Standardized layer
 
+### `standard_metric`
+
+Purpose:
+
+- stores the approved standard metric master list
+
+Key fields:
+
+- `standard_metric_id`
+- `standard_metric_name`
+- `metric_family`
+- `description`
+- `active_flag`
+- `created_at`
+- `updated_at`
+
+### `metric_name_mapping`
+
+Purpose:
+
+- stores authoritative `normalized_metric_key -> standard_metric` mappings
+
+Key fields:
+
+- `metric_name_mapping_id`
+- `normalized_metric_key`
+- `raw_metric_name_example`
+- `standard_metric_id`
+- `standard_metric_name`
+- `mapping_rule`
+- `mapping_confidence`
+- `is_active`
+- `created_at`
+- `updated_at`
+
 ### `metric_alias_map`
 
 Purpose:
 
-- stores exact alias to `standard_metric_name` rules
+- stores compatibility alias rows mirrored from `metric_name_mapping`
 
 Key fields:
 
 - `metric_alias_map_id`
 - `normalized_metric_key`
+- `standard_metric_id`
 - `standard_metric_name`
 - `is_active`
 - `created_at`
@@ -141,6 +216,7 @@ Key fields:
 - `company_key`
 - `raw_metric_name`
 - `normalized_metric_key`
+- `standard_metric_id`
 - `standard_metric_name`
 - `metric_variant`
 - `period_type`
@@ -178,4 +254,6 @@ Key fields:
 
 - `raw_metric_name` remains the source-of-truth metric label.
 - `standard_metric_name` is optional and only exists in the enriched layer.
+- `standard_metric_id` is the stable master key for grouping same-meaning
+  metrics.
 - ambiguous metrics are intentionally left unmapped.

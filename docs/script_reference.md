@@ -57,6 +57,14 @@ Role:
 - parses canonical `QDATA` CSV input
 - rebuilds `raw_observation` rows for `source_group='QDATA'`
 
+### `python.etl.run_fnguide_parser`
+
+Role:
+
+- loads the Samsung FnGuide sample end-to-end
+- rebuilds the FnGuide sidecar tables
+- creates CSV / MD / TXT validation artifacts
+
 ## Debug helpers
 
 ### `python.etl.debug_kdata1_layout`
@@ -76,6 +84,13 @@ Role:
 Role:
 
 - prints top CSV rows for QDATA block inspection
+
+### `python.etl.debug_fnguide_layout`
+
+Role:
+
+- inspects live FnGuide Consensus/Main structure
+- writes a markdown debug report under `outputs/fnguide_validation`
 
 ## Selected layer
 
@@ -99,8 +114,18 @@ Role:
 
 Role:
 
+- seeds `standard_metric`
+- seeds `metric_name_mapping`
 - rebuilds `metric_alias_map`
 - rebuilds `integrated_observation_enriched`
+
+### `python.etl.seed_standard_metric_master`
+
+Role:
+
+- seeds `standard_metric`
+- seeds `metric_name_mapping`
+- syncs compatibility `metric_alias_map`
 
 ### `python.etl.inspect_standard_metric_mapping`
 
@@ -109,6 +134,64 @@ Role:
 - shows distinct and row-level mapping coverage
 - shows mapped and unmapped metric summaries
 - shows recent enriched rows
+
+### `python.etl.inspect_standard_metric_master`
+
+Role:
+
+- shows `standard_metric` master counts
+- shows `metric_name_mapping` counts
+- shows `standard_metric_id` linkage status in enriched rows
+
+### `python.etl.inspect_unmapped_metrics`
+
+Role:
+
+- shows unmapped metrics
+- shows deferred-family concentrations
+- shows high-confidence and ambiguous suggestion candidates
+
+## Analysis layer
+
+### `python.etl.run_analysis_views`
+
+Role:
+
+- creates or refreshes analysis-oriented SQLite views
+- currently builds `company_metric_timeseries`
+
+### `python.etl.inspect_company_metric_timeseries`
+
+Role:
+
+- shows analysis-view row counts
+- shows company and metric distribution samples
+- shows recent timeseries samples for a top company
+
+## Derived analysis layer
+
+### `python.etl.run_derived_views`
+
+Role:
+
+- creates or refreshes derived analysis SQLite views
+- currently builds `company_metric_derived_v1`
+
+### `python.etl.inspect_company_metric_derived`
+
+Role:
+
+- shows derived-view row counts
+- shows derived metric distribution samples
+- shows sample company derived rows and null-handling samples
+
+### `python.etl.inspect_fnguide_load`
+
+Role:
+
+- shows FnGuide URL/mode combinations
+- shows loaded row counts and sample rows
+- shows Samsung shareholder and Business Summary samples
 
 ## Notes
 

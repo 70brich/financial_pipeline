@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS metric_alias_map (
     metric_alias_map_id INTEGER PRIMARY KEY,
     normalized_metric_key TEXT NOT NULL UNIQUE,
+    standard_metric_id INTEGER,
     standard_metric_name TEXT NOT NULL,
     is_active INTEGER NOT NULL DEFAULT 1,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -13,6 +14,7 @@ CREATE TABLE IF NOT EXISTS integrated_observation_enriched (
     company_key TEXT,
     raw_metric_name TEXT NOT NULL,
     normalized_metric_key TEXT NOT NULL,
+    standard_metric_id INTEGER,
     standard_metric_name TEXT,
     metric_variant TEXT,
     period_type TEXT NOT NULL,
@@ -39,6 +41,9 @@ CREATE TABLE IF NOT EXISTS integrated_observation_enriched (
 CREATE INDEX IF NOT EXISTS idx_metric_alias_map_standard_metric_name
     ON metric_alias_map (standard_metric_name);
 
+CREATE INDEX IF NOT EXISTS idx_metric_alias_map_standard_metric_id
+    ON metric_alias_map (standard_metric_id);
+
 CREATE INDEX IF NOT EXISTS idx_integrated_enriched_lookup
     ON integrated_observation_enriched (
         standard_metric_name,
@@ -51,3 +56,6 @@ CREATE INDEX IF NOT EXISTS idx_integrated_enriched_lookup
 
 CREATE INDEX IF NOT EXISTS idx_integrated_enriched_integrated_observation_id
     ON integrated_observation_enriched (integrated_observation_id);
+
+CREATE INDEX IF NOT EXISTS idx_integrated_enriched_standard_metric_id
+    ON integrated_observation_enriched (standard_metric_id);

@@ -277,7 +277,41 @@ def fetch_kdata1_source_files(engine) -> list[Kdata1FileContext]:
     ]
 
 
+def clear_kdata1_downstream_rows(connection, source_file_id: int) -> None:
+    params = {"source_file_id": source_file_id}
+    selected_raw_subquery = """
+        SELECT raw_observation_id
+        FROM raw_observation
+        WHERE source_file_id = :source_file_id
+          AND source_group = 'KDATA1'
+    """
+
+    connection.execute(
+        text(
+            f"""
+            DELETE FROM integrated_observation_enriched
+            WHERE integrated_observation_id IN (
+                SELECT integrated_observation_id
+                FROM integrated_observation
+                WHERE selected_raw_observation_id IN ({selected_raw_subquery})
+            )
+            """
+        ),
+        params,
+    )
+    connection.execute(
+        text(
+            f"""
+            DELETE FROM integrated_observation
+            WHERE selected_raw_observation_id IN ({selected_raw_subquery})
+            """
+        ),
+        params,
+    )
+
+
 def replace_kdata1_raw_observations(connection, source_file_id: int, records: list[dict]) -> None:
+    clear_kdata1_downstream_rows(connection, source_file_id)
     connection.execute(
         text(
             """

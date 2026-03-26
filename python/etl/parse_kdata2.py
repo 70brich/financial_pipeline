@@ -102,7 +102,13 @@ def is_date_like(value: object) -> bool:
         stripped = value.strip()
         if not stripped:
             return False
-        return bool(re.fullmatch(r"\d{4}[-/]\d{1,2}[-/]\d{1,2}", stripped))
+        if not re.fullmatch(r"\d{4}[-/]\d{1,2}[-/]\d{1,2}", stripped):
+            return False
+        try:
+            pd.to_datetime(stripped)
+        except (TypeError, ValueError):
+            return False
+        return True
     if isinstance(value, (int, float)):
         return False
     return isinstance(value, pd.Timestamp)
@@ -179,7 +185,10 @@ def melt_kdata2_sheet(
         if is_empty_cell(date_value) or not is_date_like(date_value):
             continue
 
-        date_raw, fiscal_year, period_label_std = derive_year_fields(date_value)
+        try:
+            date_raw, fiscal_year, period_label_std = derive_year_fields(date_value)
+        except ValueError:
+            continue
 
         for column_index, metric_name in metric_columns:
             cell_value = dataframe.iat[row_index, column_index]
@@ -246,7 +255,41 @@ def fetch_kdata2_source_files(engine) -> list[Kdata2FileContext]:
     ]
 
 
+def clear_kdata2_downstream_rows(connection, source_file_id: int) -> None:
+    params = {"source_file_id": source_file_id}
+    selected_raw_subquery = """
+        SELECT raw_observation_id
+        FROM raw_observation
+        WHERE source_file_id = :source_file_id
+          AND source_group = 'KDATA2'
+    """
+
+    connection.execute(
+        text(
+            f"""
+            DELETE FROM integrated_observation_enriched
+            WHERE integrated_observation_id IN (
+                SELECT integrated_observation_id
+                FROM integrated_observation
+                WHERE selected_raw_observation_id IN ({selected_raw_subquery})
+            )
+            """
+        ),
+        params,
+    )
+    connection.execute(
+        text(
+            f"""
+            DELETE FROM integrated_observation
+            WHERE selected_raw_observation_id IN ({selected_raw_subquery})
+            """
+        ),
+        params,
+    )
+
+
 def replace_kdata2_raw_observations(connection, source_file_id: int, records: list[dict]) -> None:
+    clear_kdata2_downstream_rows(connection, source_file_id)
     connection.execute(
         text(
             """

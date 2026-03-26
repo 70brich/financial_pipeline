@@ -3,48 +3,59 @@ from __future__ import annotations
 from sqlalchemy import text
 
 from python.etl.inventory_sources import utc_now_iso
-from python.etl.metric_mapping import MAPPING_SCHEMA_SQL_PATH, default_metric_alias_rows, normalize_metric_key
+from python.etl.metric_mapping import MAPPING_SCHEMA_SQL_PATH, normalize_metric_key
+from python.etl.standard_metric_master import (
+    ensure_standard_metric_runtime_columns,
+    execute_standard_metric_master_schema,
+    reseed_metric_name_mapping,
+    sync_metric_alias_map,
+    upsert_standard_metric_seed_rows,
+)
 
 
 def execute_metric_mapping_schema(engine) -> None:
+    execute_standard_metric_master_schema(engine)
+    ensure_standard_metric_runtime_columns(engine)
+
     script = MAPPING_SCHEMA_SQL_PATH.read_text(encoding="utf-8")
     statements = [statement.strip() for statement in script.split(";") if statement.strip()]
     with engine.begin() as connection:
         for statement in statements:
+            if "idx_metric_alias_map_standard_metric_id" in statement:
+                continue
+            if "idx_integrated_enriched_standard_metric_id" in statement:
+                continue
             connection.exec_driver_sql(statement)
+
+    ensure_standard_metric_runtime_columns(engine)
 
 
 def seed_metric_alias_map(connection) -> None:
-    connection.execute(text("DELETE FROM metric_alias_map"))
-    connection.execute(
-        text(
-            """
-            INSERT INTO metric_alias_map (
-                normalized_metric_key,
-                standard_metric_name,
-                is_active
-            ) VALUES (
-                :normalized_metric_key,
-                :standard_metric_name,
-                :is_active
-            )
-            """
-        ),
-        default_metric_alias_rows(),
-    )
+    # v2 authoritative seed flow:
+    # 1. seed standard_metric master rows
+    # 2. seed metric_name_mapping rows
+    # 3. mirror active rows back into legacy metric_alias_map for compatibility
+    standard_metric_lookup = upsert_standard_metric_seed_rows(connection)
+    reseed_metric_name_mapping(connection, standard_metric_lookup)
+    sync_metric_alias_map(connection)
 
 
-def fetch_metric_alias_map(connection) -> dict[str, str]:
+def fetch_metric_alias_map(connection) -> dict[str, dict]:
     rows = connection.execute(
         text(
             """
-            SELECT normalized_metric_key, standard_metric_name
-            FROM metric_alias_map
+            SELECT
+                normalized_metric_key,
+                standard_metric_id,
+                standard_metric_name,
+                mapping_rule,
+                mapping_confidence
+            FROM metric_name_mapping
             WHERE is_active = 1
             """
         )
-    ).fetchall()
-    return {row.normalized_metric_key: row.standard_metric_name for row in rows}
+    ).mappings().all()
+    return {row["normalized_metric_key"]: dict(row) for row in rows}
 
 
 def fetch_integrated_rows(connection) -> list[dict]:
@@ -70,19 +81,26 @@ def fetch_integrated_rows(connection) -> list[dict]:
     return [dict(row) for row in rows]
 
 
-def build_enriched_records(integrated_rows: list[dict], metric_alias_map: dict[str, str]) -> list[dict]:
+def build_enriched_records(integrated_rows: list[dict], metric_alias_map: dict[str, object]) -> list[dict]:
     enriched_at = utc_now_iso()
     enriched_records: list[dict] = []
 
     for row in integrated_rows:
         normalized_metric_key, metric_variant = normalize_metric_key(row["raw_metric_name"])
-        standard_metric_name = metric_alias_map.get(normalized_metric_key)
+        mapping_row = metric_alias_map.get(normalized_metric_key)
+        if isinstance(mapping_row, dict):
+            standard_metric_id = mapping_row.get("standard_metric_id")
+            standard_metric_name = mapping_row.get("standard_metric_name")
+        else:
+            standard_metric_id = None
+            standard_metric_name = mapping_row if mapping_row else None
         enriched_records.append(
             {
                 "integrated_observation_id": row["integrated_observation_id"],
                 "company_key": row.get("company_key"),
                 "raw_metric_name": row["raw_metric_name"],
                 "normalized_metric_key": normalized_metric_key,
+                "standard_metric_id": standard_metric_id,
                 "standard_metric_name": standard_metric_name,
                 "metric_variant": metric_variant,
                 "period_type": row["period_type"],
@@ -119,6 +137,7 @@ def rebuild_integrated_observation_enriched(engine) -> int:
                         company_key,
                         raw_metric_name,
                         normalized_metric_key,
+                        standard_metric_id,
                         standard_metric_name,
                         metric_variant,
                         period_type,
@@ -135,6 +154,7 @@ def rebuild_integrated_observation_enriched(engine) -> int:
                         :company_key,
                         :raw_metric_name,
                         :normalized_metric_key,
+                        :standard_metric_id,
                         :standard_metric_name,
                         :metric_variant,
                         :period_type,

@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.pyo
+logs/
+data/*.sqlite3-wal
+data/*.sqlite3-shm
+data/*.sqlite3-journal

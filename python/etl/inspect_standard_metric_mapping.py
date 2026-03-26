@@ -132,12 +132,15 @@ def main() -> None:
             text(
                 """
                 SELECT
+                    (SELECT COUNT(*) FROM standard_metric) AS total_standard_metric_rows,
+                    (SELECT COUNT(*) FROM metric_name_mapping WHERE is_active = 1) AS active_metric_name_mapping_rows,
                     COUNT(DISTINCT raw_metric_name) AS total_distinct_raw_metric_name,
                     COUNT(DISTINCT CASE WHEN standard_metric_name IS NOT NULL THEN raw_metric_name END) AS mapped_distinct_raw_metric_name,
                     COUNT(DISTINCT CASE WHEN standard_metric_name IS NULL THEN raw_metric_name END) AS unmapped_distinct_raw_metric_name,
                     COUNT(*) AS total_enriched_rows,
                     SUM(CASE WHEN standard_metric_name IS NOT NULL THEN 1 ELSE 0 END) AS mapped_enriched_rows,
-                    SUM(CASE WHEN standard_metric_name IS NULL THEN 1 ELSE 0 END) AS unmapped_enriched_rows
+                    SUM(CASE WHEN standard_metric_name IS NULL THEN 1 ELSE 0 END) AS unmapped_enriched_rows,
+                    SUM(CASE WHEN standard_metric_id IS NOT NULL THEN 1 ELSE 0 END) AS linked_standard_metric_rows
                 FROM integrated_observation_enriched
                 """
             )
@@ -385,6 +388,7 @@ def main() -> None:
                     company_key,
                     raw_metric_name,
                     normalized_metric_key,
+                    standard_metric_id,
                     standard_metric_name,
                     metric_variant,
                     period_type,
@@ -415,6 +419,8 @@ def main() -> None:
     print(f"Database: {DEFAULT_SQLITE_DB_PATH}")
 
     print_section("Distinct coverage summary")
+    print(f"standard_metric rows: {coverage.total_standard_metric_rows}")
+    print(f"active metric_name_mapping rows: {coverage.active_metric_name_mapping_rows}")
     print(f"total distinct raw_metric_name: {total_distinct}")
     print(f"mapped distinct raw_metric_name: {mapped_distinct}")
     print(f"unmapped distinct raw_metric_name: {unmapped_distinct}")
@@ -424,6 +430,7 @@ def main() -> None:
     print(f"total enriched rows: {total_rows}")
     print(f"mapped enriched rows: {mapped_rows}")
     print(f"unmapped enriched rows: {unmapped_rows}")
+    print(f"rows linked to standard_metric_id: {coverage.linked_standard_metric_rows}")
     print(f"row coverage ratio: {row_coverage_ratio:.2f}%")
 
     print_section("Top standard_metric_name row counts")
@@ -550,7 +557,8 @@ def main() -> None:
         print(
             f"[{row.integrated_observation_enriched_id}] integrated_id={row.integrated_observation_id} | "
             f"company_key={row.company_key} | raw_metric_name={row.raw_metric_name} | "
-            f"normalized_metric_key={row.normalized_metric_key} | standard_metric_name={row.standard_metric_name} | "
+            f"normalized_metric_key={row.normalized_metric_key} | standard_metric_id={row.standard_metric_id} | "
+            f"standard_metric_name={row.standard_metric_name} | "
             f"metric_variant={row.metric_variant} | period_type={row.period_type} | fy={row.fiscal_year} | "
             f"fq={row.fiscal_quarter} | date_raw={row.date_raw} | selected_source_group={row.selected_source_group} | "
             f"selected_raw_observation_id={row.selected_raw_observation_id} | selected_value_numeric={row.selected_value_numeric} | "

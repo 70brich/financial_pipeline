@@ -7,6 +7,16 @@ and ETL code kept portable to PostgreSQL later.
 
 - `docs/current_architecture.md`
   - current operational architecture and table layer summary
+- `docs/standard_metric_master_v2.md`
+  - v2 `standard_metric` master baseline, seed flow, and verified baseline snapshot
+- `docs/analysis_layer_v1.md`
+  - analysis-oriented `company_metric_timeseries` view and example SQL
+- `docs/derived_metrics_v1.md`
+  - first-pass YoY, QoQ, and margin derived metrics built on the analysis layer
+- `docs/fnguide_ingestion.md`
+  - FnGuide Samsung sample ingestion flow, outputs, and commands
+- `docs/fnguide_data_dictionary.md`
+  - FnGuide source table dictionary
 - `docs/runbook.md`
   - rebuild order and validation commands
 - `docs/table_reference.md`
@@ -23,8 +33,37 @@ and ETL code kept portable to PostgreSQL later.
   - database design draft
 - `docs/data_rules.md`
   - current data handling rules
+- `docs/v1_release_notes.md`
+  - v1 closeout plus v2 master extension handoff note
 
 ## Current status
+
+Financial Pipeline is currently operating on the `v2 standard_metric master`
+baseline.
+
+Transition note:
+
+- v1 established the validated raw, integrated, and enriched pipeline
+- v2 keeps those validated layers intact and adds the master-keyed
+  `standard_metric` and `metric_name_mapping` structure on top
+- this project should now be treated as the frozen `Financial Pipeline v2
+  baseline`
+
+Baseline snapshot:
+
+- `standard_metric`: `79`
+- active `metric_name_mapping`: `141`
+- `integrated_observation_enriched`: `2432`
+- rows linked to `standard_metric_id`: `2077`
+- distinct coverage: `66.88%`
+- row-level coverage: `85.40%`
+- tests: `28 passed`
+
+See:
+
+- `docs/standard_metric_master_v2.md`
+- `docs/current_architecture.md`
+- `PROJECT_STATUS.md`
 
 The pipeline currently supports these layers:
 
@@ -35,7 +74,11 @@ The pipeline currently supports these layers:
 - `integrated_observation`
   - exact `raw_metric_name` based selected layer
 - `integrated_observation_enriched`
-  - rule-based `standard_metric_name` enrichment layer
+  - rule-based `standard_metric_name` enrichment layer with `standard_metric_id`
+- `company_metric_timeseries`
+  - analysis-oriented SQLite view for company / metric / period / value queries
+- `company_metric_derived_v1`
+  - derived analysis SQLite view for YoY, QoQ, and margin metrics
 
 The current canonical inputs are:
 
@@ -44,6 +87,13 @@ The current canonical inputs are:
 - `data/input/QDATA`
 
 Loose files directly under `data/input/` are ignored.
+
+Additional web source:
+
+- `FNGUIDE`
+  - requests-first web ingestion for the Samsung sample implementation
+  - stored in dedicated sidecar tables to avoid breaking current file-source
+    constraints
 
 ## Source groups
 
@@ -101,7 +151,46 @@ Standard metric mapping:
 ```powershell
 py -3 -m python.etl.run_standard_metric_mapping
 py -3 -m python.etl.inspect_standard_metric_mapping
+py -3 -m python.etl.inspect_standard_metric_master
+py -3 -m python.etl.inspect_unmapped_metrics
 ```
+
+Analysis layer:
+
+```powershell
+py -3 -m python.etl.run_analysis_views
+py -3 -m python.etl.inspect_company_metric_timeseries
+```
+
+Derived metrics layer:
+
+```powershell
+py -3 -m python.etl.run_derived_views
+py -3 -m python.etl.inspect_company_metric_derived
+```
+
+FnGuide source:
+
+```powershell
+py -3 -m python.etl.debug_fnguide_layout
+py -3 -m python.etl.run_fnguide_parser
+py -3 -m python.etl.inspect_fnguide_load
+py -3 -m unittest tests.test_parse_fnguide
+```
+
+Current derived layer snapshot:
+
+- `company_metric_derived_v1`: `440`
+- top derived counts:
+  - `EPS_YOY = 49`
+  - `NET_INCOME_YOY = 49`
+  - `NET_MARGIN = 49`
+  - `OPERATING_MARGIN = 47`
+
+Current analysis layer snapshot:
+
+- `company_metric_timeseries`: `2432`
+- `YEAR / QUARTER / SNAPSHOT`: `1247 / 1158 / 27`
 
 ## SQL files
 
@@ -111,6 +200,14 @@ py -3 -m python.etl.inspect_standard_metric_mapping
   - integrated selected layer
 - `sql/005_create_metric_mapping_tables.sql`
   - metric alias map and enriched metric layer
+- `sql/006_create_standard_metric_master_tables.sql`
+  - standard metric master and authoritative metric-name mapping layer
+- `sql/007_create_analysis_views.sql`
+  - non-destructive analysis views built on top of the validated baseline
+- `sql/008_create_derived_metric_views.sql`
+  - non-destructive derived metric views built on top of the analysis layer
+- `sql/009_create_fnguide_tables.sql`
+  - non-destructive FnGuide sidecar ingestion tables
 
 ## Current scope
 
@@ -122,6 +219,9 @@ Implemented:
 - QDATA parser
 - exact-name integrated selection
 - rule-based standard metric enrichment
+- master-keyed `standard_metric` and `metric_name_mapping` layer
+- analysis-oriented `company_metric_timeseries` view
+- derived metric `company_metric_derived_v1` view
 - documented conservative metric taxonomy v1
 - documented data quality and validation checklist for the v1 baseline
 

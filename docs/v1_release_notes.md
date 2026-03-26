@@ -1,5 +1,19 @@
 # Financial Pipeline v1 release notes
 
+## Status note
+
+This document remains the v1 closeout summary.
+
+The project now operates on the `Financial Pipeline v2 standard_metric master`
+baseline, which preserves the validated v1 pipeline and adds a master-keyed
+standard metric structure.
+
+See:
+
+- `docs/standard_metric_master_v2.md`
+- `docs/current_architecture.md`
+- `PROJECT_STATUS.md`
+
 ## Purpose
 
 This document is the closeout summary for Financial Pipeline v1.
@@ -172,3 +186,26 @@ validation baseline:
 - conservative exact-alias metric enrichment working
 - coverage goals exceeded
 - deferred families intentionally left for future policy decisions
+
+## v2 master extension follow-up
+
+The current project baseline extends v1 non-destructively with:
+
+- `standard_metric`
+- `metric_name_mapping`
+- `metric_alias_map.standard_metric_id`
+- `integrated_observation_enriched.standard_metric_id`
+
+Current verified v2 master baseline:
+
+- `standard_metric`: `79`
+- active `metric_name_mapping`: `141`
+- `integrated_observation_enriched`: `2432`
+- rows linked to `standard_metric_id`: `2077`
+- distinct coverage: `103 / 154 = 66.88%`
+- row-level coverage: `2077 / 2432 = 85.40%`
+- tests: `28 passed`
+
+For the current operational baseline, use:
+
+- `docs/standard_metric_master_v2.md`

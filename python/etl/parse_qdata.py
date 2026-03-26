@@ -381,7 +381,41 @@ def fetch_qdata_source_files(engine) -> list[QdataFileContext]:
     ]
 
 
+def clear_qdata_downstream_rows(connection, source_file_id: int) -> None:
+    params = {"source_file_id": source_file_id}
+    selected_raw_subquery = """
+        SELECT raw_observation_id
+        FROM raw_observation
+        WHERE source_file_id = :source_file_id
+          AND source_group = 'QDATA'
+    """
+
+    connection.execute(
+        text(
+            f"""
+            DELETE FROM integrated_observation_enriched
+            WHERE integrated_observation_id IN (
+                SELECT integrated_observation_id
+                FROM integrated_observation
+                WHERE selected_raw_observation_id IN ({selected_raw_subquery})
+            )
+            """
+        ),
+        params,
+    )
+    connection.execute(
+        text(
+            f"""
+            DELETE FROM integrated_observation
+            WHERE selected_raw_observation_id IN ({selected_raw_subquery})
+            """
+        ),
+        params,
+    )
+
+
 def replace_qdata_raw_observations(connection, source_file_id: int, records: list[dict]) -> None:
+    clear_qdata_downstream_rows(connection, source_file_id)
     connection.execute(
         text(
             """

@@ -47,6 +47,32 @@ py -3 -m python.etl.run_integrated_selection
 py -3 -m python.etl.run_standard_metric_mapping
 ```
 
+7. Create analysis views
+
+```powershell
+py -3 -m python.etl.run_analysis_views
+```
+
+8. Create derived metric views
+
+```powershell
+py -3 -m python.etl.run_derived_views
+```
+
+9. FnGuide Samsung sample ingestion
+
+```powershell
+py -3 -m python.etl.debug_fnguide_layout
+py -3 -m python.etl.run_fnguide_parser
+py -3 -m python.etl.inspect_fnguide_load
+```
+
+Optional seed-only step:
+
+```powershell
+py -3 -m python.etl.seed_standard_metric_master
+```
+
 ## Validation commands
 
 Inventory:
@@ -85,6 +111,36 @@ Standard metric enrichment:
 py -3 -m python.etl.inspect_standard_metric_mapping
 ```
 
+Standard metric master:
+
+```powershell
+py -3 -m python.etl.inspect_standard_metric_master
+```
+
+Unmapped metric review:
+
+```powershell
+py -3 -m python.etl.inspect_unmapped_metrics
+```
+
+Analysis layer:
+
+```powershell
+py -3 -m python.etl.inspect_company_metric_timeseries
+```
+
+Derived layer:
+
+```powershell
+py -3 -m python.etl.inspect_company_metric_derived
+```
+
+FnGuide:
+
+```powershell
+py -3 -m python.etl.inspect_fnguide_load
+```
+
 ## Notes
 
 - Rebuild scripts are designed to replace their target layer, not append forever.
@@ -92,3 +148,11 @@ py -3 -m python.etl.inspect_standard_metric_mapping
 - `integrated_observation` remains an exact-name selection layer.
 - `integrated_observation_enriched` adds rule-based `standard_metric_name`
   without changing raw or integrated source records.
+- `standard_metric` and `metric_name_mapping` are seeded idempotently before the
+  enriched layer is rebuilt.
+- `company_metric_timeseries` is a non-destructive SQLite view designed for
+  direct analysis and pandas use.
+- `company_metric_derived_v1` is a non-destructive SQLite view built on top of
+  `company_metric_timeseries`.
+- FnGuide is currently a sidecar web-ingestion source and does not yet feed
+  `integrated_observation`.
